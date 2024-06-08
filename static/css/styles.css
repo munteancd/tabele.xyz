@@ -1,0 +1,217 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+h1 {
+    text-align: center;
+    margin-top: 20px;
+}
+
+form {
+    width: 80%; /* Ensure form width is responsive */
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.table-and-info-container {
+    display: flex;
+    align-items: flex-start; /* Align items to the top */
+    justify-content: center; /* Center the content horizontally */
+    margin-top: 20px; /* Add some space above the container */
+}
+
+.table-container {
+    flex: 1;
+}
+
+table {
+    width: 100%;
+    margin: 20px 0;
+    border-collapse: collapse;
+    table-layout: fixed; /* Ensure table layout is fixed */
+    text-align: center;
+}
+
+th, td {
+    border: 1px solid black;
+    padding: 0px; /* Reduce padding to make cells smaller */
+    height: 1em; /* Set a fixed height for the cells */
+    overflow: hidden; /* Ensure content does not overflow */
+}
+
+th {
+    background-color: #4CAF50;
+    color: white;
+}
+
+select {
+    width: 100%;
+    padding: 5px;
+    text-align: center;
+    box-sizing: border-box; /* Include padding in width calculation */
+    font-family: Arial, sans-serif; /* Ensure select elements use the same font */
+    font-size: 1em; /* Set the font size to match non-editable cells */
+}
+
+span {
+    color: blue; /* Make non-editable cell text blue */
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+a {
+    display: block;
+    width: 80px;
+    margin: 20px auto;
+    text-align: center;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+a:hover {
+    background-color: #45a049;
+}
+
+/* New CSS rule to set the width of the Row Name column */
+th:first-child,
+td:first-child {
+    width: 20%; /* Adjusted to fit within the window */
+}
+
+/* Ensure select elements inside the Jos column are also resized */
+td:nth-child(2) select {
+    width: 100%;
+}
+
+/* New CSS rule to set the width of the Jos column */
+th:nth-child(2),
+td:nth-child(2) {
+    width: 20%; /* Adjusted to fit within the window */
+}
+
+/* Ensure select elements inside the Liber column are also resized */
+td:nth.child(3) select {
+    width: 100%;
+}
+
+/* New CSS rule to set the width of the Liber column */
+th:nth-child(3),
+td:nth-child(3) {
+    width: 20%; /* Adjusted to fit within the window */
+}
+
+/* Ensure select elements inside the Sus column are also resized */
+td:nth.child(4) select {
+    width: 100%;
+}
+
+/* New CSS rule to set the width of the Sus column */
+th:nth.child(4),
+td:nth.child(4) {
+    width: 20%; /* Adjusted to fit within the window */
+}
+
+/* Ensure select elements inside the Servit column are also resized */
+td:nth.child(5) select {
+    width: 100%;
+}
+
+/* New CSS rule to set the width of the Servit column */
+th:nth.child(5),
+td:nth.child(5) {
+    width: 20%; /* Adjusted to fit within the window */
+}
+
+/* Style for the info container next to the table */
+.info-container {
+    margin-left: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.reset-button {
+    display: block;
+    margin-top: 10px;
+}
+
+.info-container input {
+    padding: 10px;
+    margin-bottom: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.info-container button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.info-container button:hover {
+    background-color: #45a049;
+}
+
+/* Dark mode styles */
+body.dark-mode {
+    background-color: #121212;
+    color: #ffffff;
+}
+
+body.dark-mode table {
+    border-color: #ffffff;
+}
+
+body.dark-mode th {
+    background-color: #333333;
+    color: #ffffff;
+}
+
+body.dark-mode td {
+    border-color: #333333;
+}
+
+body.dark-mode select {
+    background-color: #333333;
+    color: #ffffff;
+}
+
+body.dark-mode button {
+    background-color: #555555;
+    color: #ffffff;
+}
+
+body.dark-mode button:hover {
+    background-color: #666666;
+}
+
+body.dark-mode a {
+    background-color: #555555;
+    color: #ffffff;
+}
+
+body.dark-mode a:hover {
+    background-color: #666666;
+}

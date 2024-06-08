@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Yams Game Scoreboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script>
+        function safeInt(value) {
+            return isNaN(parseInt(value)) ? 0 : parseInt(value);
+        }
+
+        function updateTB() {
+            for (let col = 0; col < 4; col++) {
+                let sum = 0;
+                for (let row = 0; row < 6; row++) {
+                    let cellValue = document.querySelector(`select[name="entry_${row}_${col}"]`).value;
+                    sum += safeInt(cellValue);
+                }
+                if (sum >= 60) {
+                    sum += (col != 3) ? 30 : 60;
+                }
+                document.getElementById(`tb_${col}`).innerText = sum;
+            }
+            updateTC();
+        }
+
+        function updateTM() {
+            for (let col = 0; col < 4; col++) {
+                let mi = safeInt(document.querySelector(`select[name="entry_7_${col}"]`).value);
+                let ma = safeInt(document.querySelector(`select[name="entry_8_${col}"]`).value);
+                let tm = ma - mi;
+                document.getElementById(`tm_${col}`).innerText = tm;
+            }
+            updateTC();
+        }
+
+        function updateTC() {
+            for (let col = 0; col < 4; col++) {
+                let tb = safeInt(document.getElementById(`tb_${col}`).innerText);
+                let tm = safeInt(document.getElementById(`tm_${col}`).innerText);
+                let sum = tb + tm;
+                const rowsToSum = [10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
+                rowsToSum.forEach(row => {
+                    sum += safeInt(document.querySelector(`select[name="entry_${row}_${col}"]`).value);
+                });
+                document.getElementById(`tc_${col}`).innerText = sum;
+            }
+            updateTO();
+        }
+
+        function updateTO() {
+            let total = 0;
+            for (let col = 0; col < 4; col++) {
+                total += safeInt(document.getElementById('tc_' + col).innerText);
+            }
+            document.getElementById('to').innerText = total;
+        }
+
+        function updateEmptyCells() {
+            let emptyCells = 0;
+            document.querySelectorAll('select').forEach(select => {
+                if (select.value === "") {
+                    emptyCells++;
+                }
+            });
+            document.getElementById('empty-cells-count').innerText = emptyCells;
+        }
+
+        function resetScores() {
+            if (confirm('Are you sure you want to reset all scores?')) {
+                document.querySelectorAll('select').forEach(select => {
+                    select.selectedIndex = 0; // Reset dropdowns to default value
+                });
+                document.querySelectorAll('span').forEach(span => {
+                    span.innerText = ''; // Clear the calculated scores
+                });
+                updateTB();
+                updateTM();
+                updateTC();
+                updateEmptyCells();
+                updateCellColors();
+            }
+        }
+
+        function saveGame() {
+            let table = document.querySelector('table');
+            let data = [];
+            table.querySelectorAll('tr').forEach((row, rowIndex) => {
+                let rowData = [];
+                row.querySelectorAll('td, th').forEach((cell, colIndex) => {
+                    if (rowIndex === 0) {
+                        rowData.push(cell.innerText);
+                    } else {
+                        if (cell.querySelector('select')) {
+                            rowData.push(cell.querySelector('select').value || '');
+                        } else if (cell.querySelector('span')) {
+                            rowData.push(cell.querySelector('span').innerText || '');
+                        } else {
+                            rowData.push(cell.innerText);
+                        }
+                    }
+                });
+                data.push(rowData);
+            });
+
+            let wb = XLSX.utils.book_new();
+            let ws = XLSX.utils.aoa_to_sheet(data);
+            XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+            let wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+
+            function s2ab(s) {
+                let buf = new ArrayBuffer(s.length);
+                let view = new Uint8Array(buf);
+                for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+                return buf;
+            }
+
+            let fileName = document.getElementById('fileName').value || 'game_scores.xlsx';
+            saveAs(new Blob([s2ab(wbout)], { type: "application/octet-stream" }), fileName);
+        }
+
+        function loadGame() {
+            let input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.xlsx,.xls';
+            input.onchange = async (e) => {
+                let file = e.target.files[0];
+                let reader = new FileReader();
+                reader.onload = async (event) => {
+                    let data = new Uint8Array(event.target.result);
+                    let workbook = XLSX.read(data, {type: 'array'});
+                    let sheetName = workbook.SheetNames[0];
+                    let worksheet = workbook.Sheets[sheetName];
+                    let json = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+                    populateTable(json);
+                };
+                reader.readAsArrayBuffer(file);
+            };
+            input.click();
+        }
+
+        function populateTable(data) {
+            for (let row = 0; row < 21; row++) {
+                for (let col = 0; col < 4; col++) {
+                    let cellValue = data[row + 1] ? data[row + 1][col + 1] : '';
+                    let select = document.querySelector(`select[name="entry_${row}_${col}"]`);
+                    if (select) {
+                        select.value = cellValue;
+                    }
+                }
+            }
+            updateTB();
+            updateTM();
+            updateTC();
+            updateEmptyCells();
+            updateCellColors();
+        }
+
+        function updateCellColors() {
+            document.querySelectorAll('select').forEach(select => {
+                if (select.value === '0') {
+                    select.style.color = 'red';
+                } else {
+                    select.style.color = '';
+                }
+            });
+            const yRowSelects = document.querySelectorAll('select[name^="entry_19"]');
+            yRowSelects.forEach(select => {
+                if (select.value !== '0') {
+                    select.style.color = 'green';
+                    select.style.fontWeight = 'bold';
+                } else {
+                    select.style.color = '';
+                    select.style.fontWeight = '';
+                }
+            });
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            document.querySelectorAll('select').forEach((select) => {
+                select.addEventListener('change', () => {
+                    if (select.value === "delete") {
+                        select.value = "";
+                    }
+                    updateTB();
+                    updateTM();
+                    updateTC();
+                    updateEmptyCells();
+                    updateCellColors();
+                });
+            });
+            document.getElementById('dark-mode-toggle').addEventListener('click', toggleDarkMode);
+            updateTB(); // Initial calculation
+            updateTM(); // Initial calculation
+            updateTC(); // Initial calculation
+            updateEmptyCells(); // Initial empty cells calculation
+            updateCellColors(); // Initial cell color update
+        });
+    </script>
+</head>
+<body>
+    <form>
+        <div class="table-and-info-container">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Row Name</th>
+                            <th>Jos</th>
+                            <th>Liber</th>
+                            <th>Sus</th>
+                            <th>Servit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in range(21) %}
+                            <tr>
+                                <td>{{ row_names[row] }}</td>
+                                {% for col in range(4) %}
+                                    <td>
+                                        {% if row == 6 %}
+                                            <span id="tb_{{ col }}"></span>
+                                        {% elif row == 9 %}
+                                            <span id="tm_{{ col }}"></span>
+                                        {% elif row == 20 %}
+                                            <span id="tc_{{ col }}"></span>
+                                        {% else %}
+                                            <select name="entry_{{ row }}_{{ col }}">
+                                                <option value="" disabled selected></option>
+                                                <option value="delete">Delete</option>
+                                                {% for value in dropdown_values[row_names[row]] %}
+                                                    <option value="{{ value }}">{{ value }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                        <tr>
+                            <td>TO</td>
+                            <td colspan="4"><span id="to"></span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="info-container">
+                <p>Empty cells: <span id="empty-cells-count">0</span></p>
+                <input type="text" id="fileName" placeholder="Enter file name">
+                <button type="button" onclick="saveGame()">Save Game</button>
+                <button type="button" onclick="loadGame()">Load Game</button>
+                <button type="button" class="reset-button" onclick="resetScores()">Reset Scores</button>
+                <button id="dark-mode-toggle" type="button">Toggle Dark Mode</button>
+            </div>
+        </div>
+    </form>
+</body>
+</html>

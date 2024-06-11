@@ -4,3 +4,4 @@ numpy==1.21.1
 sh>=1.10,<2.0
 python-for-android==2024.1.21
 setuptools
+distutils

@@ -11,5 +11,9 @@
       "src": "/(.*)",
       "dest": "app.py"
     }
-  ]
+  ],
+  "env": {
+    "PYTHONUNBUFFERED": "1",
+    "PYTHONPATH": "/vercel/path0/.vercel_build_output"
+  }
 }
